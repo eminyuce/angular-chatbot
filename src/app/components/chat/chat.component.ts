@@ -1,7 +1,8 @@
 import { AfterViewChecked, Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { ChatService } from '../../services/chat.service';
-import { ChatRole, IChatMessage } from '../../models/IChatMessage';
+import { ChatRole, IChatMessage } from '../../models/chat-message';
+import { EventResponse } from '../../models/event-response';
 
 class Message {
   text?: string;
@@ -96,9 +97,10 @@ export class ChatComponent implements OnInit, AfterViewChecked {
     var chatMessage = this.createDefaultMessage("",lastUserMessage);
     this.chatService.getToolResponseStream(chatMessage).subscribe({
       next: (event: MessageEvent) => {
+        const response: EventResponse = event.data;
         // --- Action on receiving data chunk ---
         console.log('Stream event received:', event);
-        const chunk = event.data; // Assuming backend sends string chunks
+        const chunk = response.content; // Assuming backend sends string chunks
 
         // 1. Remove Loading & Add Placeholder (only on the first chunk)
         if (!placeholderAdded) {

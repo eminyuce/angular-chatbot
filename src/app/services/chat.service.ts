@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { ChatRole, IChatMessage } from '../models/IChatMessage';
+import { ChatRole, IChatMessage } from '../models/chat-message';
+import { EventResponse } from '../models/event-response';
 
 @Injectable({
   providedIn: 'root'
@@ -18,8 +19,9 @@ export class ChatService {
     return new Observable<MessageEvent>((observer) => {
       // For SSE with POST requests, we need EventSource polyfill or custom implementation
       // This implementation uses fetch with SSE handling
-      const fetchUrl = `${this.baseUrl}/ask-ai-tool`;
-      
+      // const fetchUrl = `${this.baseUrl}/ask-ai-tool`;
+      const fetchUrl = `${this.baseUrl}/ask-ai-stream`;
+
       const headers = new Headers({
         'Content-Type': 'application/json',
         'Accept': 'text/event-stream'
@@ -70,11 +72,19 @@ export class ChatService {
                     return acc;
                   }, {} as Record<string, string>);
                 
-                const event = new MessageEvent(eventData.event || 'message', {
-                  data: eventData.data
-                });
-                
-                observer.next(event);
+                  try{
+                    
+                      const parsedData: EventResponse = JSON.parse(eventData.data);
+                      const event = new MessageEvent(eventData.event || 'message', {
+                        data: parsedData
+                      });
+                      
+                      observer.next(event);
+
+                  } catch (err) {
+                    console.error('JSON parse error for SSE event:', err);
+                  }
+
               }
             });
             
