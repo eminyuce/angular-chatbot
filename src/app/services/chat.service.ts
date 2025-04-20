@@ -1,14 +1,122 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { ChatRole, IChatMessage } from '../models/IChatMessage';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ChatService {
-  //private baseUrl = 'http://localhost:8080'; // Check if '/gen-ai' is part of the controller mapping or the base URL
-  private baseUrl = 'http://localhost:8080/gen-ai'; // If /gen-ai is the controller's base path
+  private baseUrl = 'http://localhost:8080/gen-ai';
 
-  constructor() {}
+  constructor(private http: HttpClient) {}
+
+  /**
+   * Gets AI tool response using Server-Sent Events (SSE)
+   */
+  getToolResponseStream(chatMessage: IChatMessage): Observable<MessageEvent> {
+    return new Observable<MessageEvent>((observer) => {
+      // For SSE with POST requests, we need EventSource polyfill or custom implementation
+      // This implementation uses fetch with SSE handling
+      const fetchUrl = `${this.baseUrl}/ask-ai-tool`;
+      
+      const headers = new Headers({
+        'Content-Type': 'application/json',
+        'Accept': 'text/event-stream'
+      });
+      
+      const fetchPromise = fetch(fetchUrl, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(chatMessage),
+        cache: 'no-cache'
+      });
+      
+      fetchPromise.then(response => {
+        if (!response.ok) {
+          observer.error(`HTTP error! Status: ${response.status}`);
+          return;
+        }
+        
+        if (!response.body) {
+          observer.error('Response body is null');
+          return;
+        }
+        
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        
+        function processStreamChunk() {
+          reader.read().then(({ done, value }) => {
+            if (done) {
+              observer.complete();
+              return;
+            }
+            
+            const chunk = decoder.decode(value, { stream: true });
+            const lines = chunk.split('\n\n');
+            
+            lines.forEach(line => {
+              if (line.trim() !== '') {
+                // Parse SSE format
+                const eventData = line.split('\n')
+                  .reduce((acc, part) => {
+                    const colonIndex = part.indexOf(':');
+                    if (colonIndex > 0) {
+                      const field = part.substring(0, colonIndex).trim();
+                      const value = part.substring(colonIndex + 1).trim();
+                      acc[field] = value;
+                    }
+                    return acc;
+                  }, {} as Record<string, string>);
+                
+                const event = new MessageEvent(eventData.event || 'message', {
+                  data: eventData.data
+                });
+                
+                observer.next(event);
+              }
+            });
+            
+            processStreamChunk();
+          }).catch(err => {
+            observer.error(err);
+          });
+        }
+        
+        processStreamChunk();
+      }).catch(err => {
+        observer.error(err);
+      });
+      
+      return () => {
+        // Nothing to clean up for fetch implementation
+        console.log('Stream connection closed');
+      };
+    });
+  }
+
+  /**
+   * Alternative method using standard HTTP POST
+   * Useful for non-streaming responses or when SSE is not needed
+   */
+  askAgent(chatMessage: IChatMessage): Observable<any> {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+    
+    return this.http.post(
+      `${this.baseUrl}/ask-ai-tool`, 
+      chatMessage, 
+      { 
+        headers: headers,
+        responseType: 'text', 
+        reportProgress: true, 
+        observe: 'events' 
+      }
+    );
+  }
+
 
   getResponseStream(question: string): Observable<MessageEvent> {
     return new Observable<MessageEvent>((observer) => {

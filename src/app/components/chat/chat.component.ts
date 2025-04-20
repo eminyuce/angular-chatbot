@@ -1,6 +1,7 @@
 import { AfterViewChecked, Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { ChatService } from '../../services/chat.service';
+import { ChatRole, IChatMessage } from '../../models/IChatMessage';
 
 class Message {
   text?: string;
@@ -53,6 +54,27 @@ export class ChatComponent implements OnInit, AfterViewChecked {
     }
   }
 
+  createDefaultMessage(content: string,prompt: string): IChatMessage {
+    return {
+      id: this.generateUUID(),
+      chatId: this.generateUUID(),
+      userId: 'user-uuid', // Replace with actual user ID
+      userName: 'User',    // Replace with actual username
+      content: content,
+      prompt: prompt,
+      role: ChatRole.USER,
+      timestamp: new Date().toISOString()
+    };
+  }
+
+  private generateUUID(): string {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      const r = Math.random() * 16 | 0;
+      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+  }
+  
   private getBotMessage(): void {
     this.canSendMessage = false;
     const waitMessage: Message = { type: MessageType.Loading };
@@ -71,8 +93,8 @@ export class ChatComponent implements OnInit, AfterViewChecked {
       this.canSendMessage = true;
       return; // Exit if there's nothing to send
     }
-
-    this.chatService.getResponseStream(lastUserMessage).subscribe({
+    var chatMessage = this.createDefaultMessage("",lastUserMessage);
+    this.chatService.getToolResponseStream(chatMessage).subscribe({
       next: (event: MessageEvent) => {
         // --- Action on receiving data chunk ---
         console.log('Stream event received:', event);
