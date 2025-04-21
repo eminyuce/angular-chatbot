@@ -3,8 +3,10 @@ import { Routes, RouterModule } from '@angular/router';
 import { FixedChatComponent } from './pages/fixed-chat/fixed-chat.component';
 import { CollapsibleChatComponent } from './pages/collapsible-chat/collapsible-chat.component';
 import { DisplayType } from './shared/enums/display-type.enum';
+import { LoginComponent } from './components/pages/login/login.component';
 
 const routes: Routes = [
+  { path: 'login', component: LoginComponent },
   {
     path: '',
     redirectTo: DisplayType.Fixed,

@@ -3,6 +3,7 @@ import { Observable } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ChatRole, IChatMessage } from '../models/chat-message';
 import { EventResponse } from '../models/event-response';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,7 @@ import { EventResponse } from '../models/event-response';
 export class ChatService {
   private baseUrl = 'http://localhost:8080/gen-ai';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private authService: AuthService) {}
 
   /**
    * Gets AI tool response using Server-Sent Events (SSE)
@@ -24,7 +25,8 @@ export class ChatService {
 
       const headers = new Headers({
         'Content-Type': 'application/json',
-        'Accept': 'text/event-stream'
+        'Accept': 'text/event-stream',
+        'Authorization': `Bearer ${this.authService.getToken()}`
       });
       
       const fetchPromise = fetch(fetchUrl, {

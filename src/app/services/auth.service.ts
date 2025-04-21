@@ -18,6 +18,7 @@ export class AuthService {
   // Called during app initialization
   initAuth(): Observable<boolean> {
     const token = this.getToken();
+    console.log("token:", token);
     if (token && !this.jwtHelper.isTokenExpired(token)) {
       // Existing valid token
       this.isAuthenticatedSubject.next(true);
@@ -25,7 +26,7 @@ export class AuthService {
     }
 
     // Attempt authentication with hardcoded credentials
-    const credentials = { username: 'testuser', password: 'testpass' };
+    const credentials = { username: 'angular-user', password: 'angular-pass' };
     return this.login(credentials.username, credentials.password).pipe(
       switchMap(() => {
         this.isAuthenticatedSubject.next(true);
@@ -41,7 +42,7 @@ export class AuthService {
 
   login(username: string, password: string): Observable<{ token: string }> {
     return this.http
-      .post<{ token: string }>(`${this.baseUrl}/login`, { username, password })
+      .post<{ token: string }>(`${this.baseUrl}/login-angular`, { username, password })
       .pipe(
         tap(response => {
           if (response.token) {

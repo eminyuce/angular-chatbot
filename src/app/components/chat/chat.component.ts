@@ -3,6 +3,7 @@ import { UntypedFormGroup, UntypedFormBuilder } from '@angular/forms';
 import { ChatService } from '../../services/chat.service';
 import { ChatRole, IChatMessage } from '../../models/chat-message';
 import { EventResponse } from '../../models/event-response';
+import { AuthService } from 'src/app/services/auth.service';
 
 class Message {
   text?: string;
@@ -28,12 +29,14 @@ export class ChatComponent implements OnInit, AfterViewChecked {
   public messages: Array<Message> = [];
   private canSendMessage = true;
 
-  constructor(private formBuilder: UntypedFormBuilder, private chatService: ChatService) {}
+  constructor(private formBuilder: UntypedFormBuilder, 
+    private chatService: ChatService) {}
 
   ngOnInit(): void {
     this.form = this.formBuilder.group({
       message: ['']
     });
+    
     // Optional: preload welcome message
     // this.getBotMessage(); 
   }

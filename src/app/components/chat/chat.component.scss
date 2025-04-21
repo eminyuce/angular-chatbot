@@ -16,6 +16,15 @@
     margin-top: 7vh;
 }
 
+.no-bg .mat-form-field-flex {
+    background-color: transparent !important;
+    box-shadow: none !important;
+  }
+  
+  .no-bg .mat-form-field-underline {
+    display: none !important;
+  }
+
 .collapsible-chat {
     display: flex;
     flex-direction: column;
