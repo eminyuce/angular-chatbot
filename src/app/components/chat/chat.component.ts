@@ -1,5 +1,5 @@
 import { AfterViewChecked, Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
-import { FormGroup, FormBuilder } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormBuilder } from '@angular/forms';
 import { ChatService } from '../../services/chat.service';
 import { ChatRole, IChatMessage } from '../../models/chat-message';
 import { EventResponse } from '../../models/event-response';
@@ -24,11 +24,11 @@ export class ChatComponent implements OnInit, AfterViewChecked {
   @ViewChild('messageContainer') private messageContainer: ElementRef;
   @Input() public display: string;
 
-  public form: FormGroup;
+  public form: UntypedFormGroup;
   public messages: Array<Message> = [];
   private canSendMessage = true;
 
-  constructor(private formBuilder: FormBuilder, private chatService: ChatService) {}
+  constructor(private formBuilder: UntypedFormBuilder, private chatService: ChatService) {}
 
   ngOnInit(): void {
     this.form = this.formBuilder.group({
