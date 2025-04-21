@@ -1,41 +1,61 @@
-<form [formGroup]="form" class="chat-container">
-    <mat-card [ngClass]="display">
-        <mat-card-header class="chat-header">
-            <img mat-card-avatar src="./assets/bot.png" class="chat-icon">
+  <!-- Chat Component Template -->
+  <form [formGroup]="form" class="chat-wrapper">
+    <mat-card class="chat-card" [ngClass]="display">
+      <mat-card-header class="chat-header">
+        <div class="chat-header-left">
+          <img mat-card-avatar src="./assets/bot.png" alt="Chatbot" class="chat-icon" />
+          <div>
             <mat-card-title class="chat-title">Chatbot</mat-card-title>
             <mat-card-subtitle class="chat-subtitle">
-                <div class="status-icon"></div>
-                <span>Online</span>
+              <span class="status-icon online"></span>
+              <span>Online</span>
             </mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content class="chat-content" #messageContainer>
-            <div *ngFor="let message of messages" class="messages">
-                <div [ngClass]="'message ' + message.type">
-                    {{ message.text }}
-                </div>
+          </div>
+        </div>
+      </mat-card-header>
+
+      <mat-card-content class="chat-messages" #messageContainer>
+        <div *ngFor="let message of messages" class="message-wrapper">
+          <ng-container [ngSwitch]="message.type">
+            <!-- User Message -->
+            <div *ngSwitchCase="'user'" class="message user">
+              {{ message.text }}
             </div>
-        </mat-card-content>
-        <mat-card-actions class="chat-actions">
-            <mat-form-field appearance="fill" class="chat-form no-bg">
-            <textarea 
-                class="chat-input" 
-                matInput 
-                type="text" 
-                placeholder="Type message..." 
-                formControlName="message"
-                (keydown.enter)="onClickEnter($event)"
-            ></textarea>
-            <button 
-                class="send-button" 
-                matSuffix 
-                mat-icon-button 
-                aria-label="Send" 
-                (click)="onClickSendMessage()"
-                [disableRipple]="true"
-            >
-                <mat-icon class="send-icon">send</mat-icon>
-            </button>
-            </mat-form-field>
-        </mat-card-actions>
+            <!-- Bot Message -->
+            <div *ngSwitchCase="'bot'" class="message bot">
+              {{ message.text }}
+            </div>
+            <!-- Loading Animation -->
+            <div *ngSwitchCase="'loading'" class="message loading">
+              <div class="loading-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </mat-card-content>
+
+      <mat-card-actions class="chat-input-wrapper">
+        <mat-form-field appearance="outline" class="chat-input-field">
+          <textarea
+            matInput
+            formControlName="message"
+            placeholder="Type your message..."
+            class="chat-input"
+            (keydown.enter)="onClickEnter($event)"
+            rows="1"
+          ></textarea>
+          <button
+            mat-icon-button
+            matSuffix
+            (click)="onClickSendMessage()"
+            aria-label="Send message"
+          >
+            <mat-icon>send</mat-icon>
+          </button>
+        </mat-form-field>
+      </mat-card-actions>
     </mat-card>
-</form>
+  </form>
