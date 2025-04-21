@@ -9,6 +9,8 @@ import { FixedChatComponent } from './pages/fixed-chat/fixed-chat.component'; //
 import { CollapsibleChatComponent } from './pages/collapsible-chat/collapsible-chat.component'; // Make sure this path is correct
 import { ChatComponent } from './components/chat/chat.component'; // Make sure this path is correct
 import { HttpClientModule } from '@angular/common/http'; // Corrected import path
+import { TokenInterceptor } from './services/token.interceptor';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -25,7 +27,13 @@ import { HttpClientModule } from '@angular/common/http'; // Corrected import pat
     ReactiveFormsModule, // Added comma
     HttpClientModule
   ],
-  providers: [],
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: TokenInterceptor,
+      multi: true,
+    },
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
