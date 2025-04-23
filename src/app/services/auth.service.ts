@@ -14,7 +14,13 @@ export class AuthService {
   isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
 
   constructor(private http: HttpClient) {}
+ 
 
+  isLoggedIn(): boolean {
+    const token = this.getToken();
+    console.log("token:", token);
+    return !!localStorage.getItem(this.tokenKey);
+  }
   // Called during app initialization
   initAuth(): Observable<boolean> {
     const token = this.getToken();

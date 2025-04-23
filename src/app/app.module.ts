@@ -23,6 +23,7 @@ import { LoginComponent } from './components/pages/login/login.component';
 
 // Services
 import { TokenInterceptor } from './services/token.interceptor';
+import { MarkdownModule } from 'ngx-markdown';
 
 @NgModule({
   declarations: [
@@ -33,6 +34,7 @@ import { TokenInterceptor } from './services/token.interceptor';
     LoginComponent
   ],
   imports: [
+    MarkdownModule.forRoot(),  // Enables Markdown rendering
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
@@ -54,4 +56,4 @@ import { TokenInterceptor } from './services/token.interceptor';
   ],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {}
