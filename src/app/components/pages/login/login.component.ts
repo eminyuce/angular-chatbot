@@ -12,6 +12,10 @@ export class LoginComponent {
   loginForm: FormGroup;
   errorMessage: string = '';
 
+  ngOnInit() {
+    console.log('LoginComponent loaded');
+  }
+
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,

@@ -23,7 +23,6 @@ import { LoginComponent } from './components/pages/login/login.component';
 
 // Services
 import { TokenInterceptor } from './services/token.interceptor';
-
 @NgModule({
   declarations: [
     AppComponent,
@@ -54,4 +53,4 @@ import { TokenInterceptor } from './services/token.interceptor';
   ],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {}

@@ -16,94 +16,49 @@ export class ChatService {
   /**
    * Gets AI tool response using Server-Sent Events (SSE)
    */
+  
   getToolResponseStream(chatMessage: IChatMessage): Observable<MessageEvent> {
+    const token = this.authService.getToken();
+  
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Accept': 'text/event-stream', // or 'text/event-stream' if supported
+      'Authorization': `Bearer ${token}`
+    });
+  
     return new Observable<MessageEvent>((observer) => {
-      // For SSE with POST requests, we need EventSource polyfill or custom implementation
-      // This implementation uses fetch with SSE handling
-      // const fetchUrl = `${this.baseUrl}/ask-ai-tool`;
-      const fetchUrl = `${this.baseUrl}/ask-ai-stream`;
-
-      const headers = new Headers({
-        'Content-Type': 'application/json',
-        'Accept': 'text/event-stream',
-        'Authorization': `Bearer ${this.authService.getToken()}`
-      });
-      
-      const fetchPromise = fetch(fetchUrl, {
-        method: 'POST',
+      this.http.post(`${this.baseUrl}/ask-ai-stream`, chatMessage, {
         headers: headers,
-        body: JSON.stringify(chatMessage),
-        cache: 'no-cache'
-      });
-      
-      fetchPromise.then(response => {
-        if (!response.ok) {
-          observer.error(`HTTP error! Status: ${response.status}`);
-          return;
-        }
-        
-        if (!response.body) {
-          observer.error('Response body is null');
-          return;
-        }
-        
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        
-        function processStreamChunk() {
-          reader.read().then(({ done, value }) => {
-            if (done) {
-              observer.complete();
-              return;
-            }
-            
-            const chunk = decoder.decode(value, { stream: true });
-            const lines = chunk.split('\n\n');
-            
-            lines.forEach(line => {
-              if (line.trim() !== '') {
-                // Parse SSE format
-                const eventData = line.split('\n')
-                  .reduce((acc, part) => {
-                    const colonIndex = part.indexOf(':');
-                    if (colonIndex > 0) {
-                      const field = part.substring(0, colonIndex).trim();
-                      const value = part.substring(colonIndex + 1).trim();
-                      acc[field] = value;
-                    }
-                    return acc;
-                  }, {} as Record<string, string>);
-                
-                  try{
-                    
-                      const parsedData: EventResponse = JSON.parse(eventData.data);
-                      const event = new MessageEvent(eventData.event || 'message', {
-                        data: parsedData
-                      });
-                      
-                      observer.next(event);
-
-                  } catch (err) {
-                    console.error('JSON parse error for SSE event:', err);
-                  }
-
+        responseType: 'text'
+      }).subscribe({
+        next: (response: string) => {
+          // Simulate stream-like parsing from a full text response
+          const lines = response.split('\n\n');
+  
+          for (const line of lines) {
+            if (line.trim()) {
+              try {
+                const data = line.split('\n').find(l => l.startsWith('data:'))?.substring(5).trim();
+                if (data) {
+                  const parsed: EventResponse = JSON.parse(data);
+                  const event = new MessageEvent('message', { data: parsed });
+                  observer.next(event);
+                }
+              } catch (err) {
+                console.error('Failed to parse SSE chunk:', err);
               }
-            });
-            
-            processStreamChunk();
-          }).catch(err => {
-            observer.error(err);
-          });
+            }
+          }
+  
+          observer.complete();
+        },
+        error: (err) => {
+          observer.error(err);
         }
-        
-        processStreamChunk();
-      }).catch(err => {
-        observer.error(err);
       });
-      
+  
       return () => {
-        // Nothing to clean up for fetch implementation
-        console.log('Stream connection closed');
+        console.log('Unsubscribed from stream');
       };
     });
   }
