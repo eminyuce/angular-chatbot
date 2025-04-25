@@ -1,18 +1,24 @@
-# AngularChatbot
+# Angular Chatbot
 
-An Angular Project for a Chatbot UI with integration with Googles's Dialogflow.
+This is a simple chatbot built using Angular. It provides a user-friendly interface for interacting with an AI-powered backend. The chatbot can be used for various purposes like customer support, FAQs, or general user interaction.
 
-See demo: https://leticiabma.github.io/angular-chatbot
+## Features
 
-## Development server
+- Clean and responsive chat UI
+- Real-time messaging interface
+- Easy integration with AI backend
+- Customizable components
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+## Technologies Used
 
-## Build
+- Angular
+- HTML/CSS
+- TypeScript
 
-Run `ng build --base-href angular-chatbot` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+## Getting Started
 
-## Running unit tests
+### Prerequisites
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+- Node.js and npm installed
+- Angular CLI installed globally
 
